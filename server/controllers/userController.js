@@ -41,45 +41,28 @@ const getUserById = async (req, res) => {
 };
 const registerUser = async (req, res) => {
   try {
-    const {
-      fullName,
-      email,
-      location,
-      number,
-      booking_history,
-      favourite_vechile,
-      reservations,
-      isAdmin,
-    } = req.body;
+    const { fullName, email, password, location, number, isAdmin } = req.body;
 
-    // Validate input
     if (
       !fullName ||
       !email ||
       !location ||
       !number ||
-      !booking_history ||
-      !favourite_vechile ||
-      !reservations ||
+      !password ||
       isAdmin === undefined
     ) {
       return res.status(400).send({ message: "Provide all fields" });
     }
 
-    // Insert into database
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).send({ message: "Invalid email format" });
+    }
+
     const [result] = await dbPool.query(
-      `INSERT INTO users (fullName, email, location, number, booking_history, favourite_vechile, reservations,isAdmin) 
-         VALUES (?, ?, ?, ?, ?, ?, ?,?)`,
-      [
-        fullName,
-        email,
-        location,
-        number,
-        booking_history,
-        favourite_vechile,
-        reservations,
-        isAdmin,
-      ]
+      `INSERT INTO users (fullName, email, password, location, number, isAdmin) 
+         VALUES (?, ?, ?, ?, ?, ?)`,
+      [fullName, email, password, location, number, isAdmin]
     );
 
     if (!result || result.affectedRows === 0) {
@@ -97,4 +80,63 @@ const registerUser = async (req, res) => {
       .send({ message: "Error creating user", error: err.message });
   }
 };
-module.exports = { getUsers, getUserById, registerUser };
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log(userId);
+    if (!userId) {
+      return res.status(404).send({
+        message: "Invalid Id",
+      });
+    }
+    const { fullName, email, password, location, number } = req.body;
+
+    const [data] = await dbPool.query(
+      `UPDATE users SET fullName = ?, email = ?, password = ?, location = ?, number = ? WHERE id = ?`,
+      [fullName, email, password, location, number, userId]
+    );
+
+    if (data.affectedRows === 0) {
+      return res.status(404).send({
+        message: "User not found or no changes made",
+      });
+    }
+
+    res.status(200).send({
+      message: "User details updated successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      message: "Error Updating User",
+      err,
+    });
+  }
+};
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (!userId) {
+      return res.status(404).send({
+        message: "Provide Valid UserId",
+      });
+    }
+    await dbPool.query(`DELETE FROM users WHERE id=?`, [userId]);
+    res.status(200).send({
+      message: "student deleted successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).sent({
+      message: "Error In deleting user",
+      err,
+    });
+  }
+};
+module.exports = {
+  getUsers,
+  getUserById,
+  registerUser,
+  updateUser,
+  deleteUser,
+};
