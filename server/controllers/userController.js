@@ -8,7 +8,7 @@ const getUsers = async (req, res) => {
     }
 
     res.status(200).send({
-      message: "All user recordAs",
+      message: "All user records",
       totalUsers: rows.length,
       data: rows,
     });

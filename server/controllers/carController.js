@@ -17,8 +17,9 @@ const getCars = async (req, res) => {
   }
 };
 const getSingeCar = (req, res) => {};
-const newCar = (req, res) => {
+const newCar = async (req, res) => {
   try {
+    console.log(req.body);
     const {
       carName,
       model,
@@ -36,9 +37,9 @@ const newCar = (req, res) => {
       !model ||
       !make_year ||
       !capacity ||
-      !air_condition ||
-      !gps ||
-      !child_seats ||
+      !air_condition === undefined ||
+      !gps === undefined ||
+      !child_seats === undefined ||
       !price_per_hour ||
       !price_per_day ||
       !price_per_week
@@ -47,6 +48,37 @@ const newCar = (req, res) => {
         .status(404)
         .send({ messge: "Provide all neccessary car Details" });
     }
+    const [result] = await dbPool.query(
+      `INSERT INTO cars (carName,
+      model,
+      make_year,
+      capacity,
+      air_condition,
+      gps,
+      child_seats,
+      price_per_hour,
+      price_per_day,
+      price_per_week) VALUES (?,?,?,?,?,?,?,?,?,?)`,
+      [
+        carName,
+        model,
+        make_year,
+        capacity,
+        air_condition,
+        gps,
+        child_seats,
+        price_per_hour,
+        price_per_day,
+        price_per_week,
+      ]
+    );
+    if (!result || result.affectedRows === 0) {
+      return res.status(500).send({ message: "Error in insert query" });
+    }
+    res.status(201).send({
+      message: "New Car Added",
+      userId: result.insertId,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).send({ message: "New Car cannot be added", err });
