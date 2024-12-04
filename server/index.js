@@ -7,9 +7,11 @@ const userRouter = require("./routes/userRoutes");
 const carRouter = require("./routes/carRoutes");
 const bookingRouter = require("./routes/bookingRouter");
 const authRouter = require("./routes/auth");
+const cors = require("cors");
 
 dotenv.config();
 app.use(express.json());
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use("/api/auth", authRouter);

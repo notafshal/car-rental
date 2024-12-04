@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { Link } from "react-router-dom";
-
+import { CiSearch } from "react-icons/ci";
 function NavBar() {
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
@@ -34,7 +34,9 @@ function NavBar() {
               className="me-2"
               aria-label="Search"
             />
-            <Button variant="outline-secondary">Search</Button>
+            <Button variant="outline-secondary">
+              <CiSearch />
+            </Button>
           </Form>
         </Navbar.Collapse>
       </Container>
