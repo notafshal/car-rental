@@ -1,4 +1,5 @@
 const dbPool = require("../config/db");
+const bcrypt = require("bcrypt");
 
 const getUsers = async (req, res) => {
   try {
