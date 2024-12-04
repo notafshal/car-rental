@@ -123,7 +123,7 @@ const deleteUser = async (req, res) => {
     }
     await dbPool.query(`DELETE FROM users WHERE id=?`, [userId]);
     res.status(200).send({
-      message: "student deleted successfully",
+      message: "user deleted successfully",
     });
   } catch (err) {
     console.log(err);

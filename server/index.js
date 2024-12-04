@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const dbPool = require("./config/db");
 const userRouter = require("./routes/userRoutes");
 const carRouter = require("./routes/carRoutes");
+const bookingRouter = require("./routes/bookingRouter");
 
 dotenv.config();
 app.use(express.json());
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use("/api/users", userRouter);
 app.use("/api/cars", carRouter);
+app.use("/api/booking", bookingRouter);
 app.get("/", (req, res) => {
   res.status(200).send("<h1>Running</h1>");
 });
