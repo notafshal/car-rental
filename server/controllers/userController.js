@@ -58,11 +58,12 @@ const registerUser = async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).send({ message: "Invalid email format" });
     }
-
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     const [result] = await dbPool.query(
       `INSERT INTO users (fullName, email, password, location, number, isAdmin) 
          VALUES (?, ?, ?, ?, ?, ?)`,
-      [fullName, email, password, location, number, isAdmin]
+      [fullName, email, hashedPassword, location, number, isAdmin]
     );
 
     if (!result || result.affectedRows === 0) {
