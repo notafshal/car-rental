@@ -7,6 +7,7 @@ const {
   deleteCar,
 } = require("../controllers/carController");
 const { bookCar, deleteBooking } = require("../controllers/bookingController");
+const verifyToken = require("../middleware/verifyToken");
 
 const carRouter = express.Router();
 
@@ -15,6 +16,6 @@ carRouter.get("/:id", getSingleCar);
 carRouter.post("/", newCar);
 carRouter.put("/:id", updateCar);
 carRouter.delete("/:id", deleteCar);
-carRouter.post("/book", bookCar);
+carRouter.post("/book", verifyToken, bookCar);
 carRouter.delete("/book/:id", deleteBooking);
 module.exports = carRouter;
