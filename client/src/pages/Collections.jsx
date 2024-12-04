@@ -7,6 +7,7 @@ import Button from "react-bootstrap/Button";
 import { FaCar, FaEye } from "react-icons/fa";
 import { VscSourceControl } from "react-icons/vsc";
 import { IoSpeedometer } from "react-icons/io5";
+import { Link } from "react-router-dom";
 function Collections() {
   const [cars, setCars] = useState([]);
   useEffect(() => {
@@ -65,9 +66,11 @@ function Collections() {
                     </Card.Text>
                     <div className="d-flex justify-content-between">
                       <Button variant="primary">Book Now</Button>
-                      <Button variant="secondary">
-                        <FaEye /> View
-                      </Button>
+                      <Link to={`/cars/${data.id}`}>
+                        <Button variant="secondary">
+                          <FaEye /> View
+                        </Button>
+                      </Link>
                     </div>
                   </Card.Body>
                 </Card>

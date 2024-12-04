@@ -1,6 +1,7 @@
 import NavBar from "../components/Navbar";
 import carImage from "../assets/front_car.jpg";
 import { TbArrowBadgeRightFilled } from "react-icons/tb";
+import { Link } from "react-router-dom";
 
 function Homepage() {
   return (
@@ -27,9 +28,12 @@ function Homepage() {
                 exceptional value for every customer. Experience the best in car
                 rental services and make your travels truly hassle-free with us!
               </p>
-              <button type="button" className="btn btn-secondary">
-                View Collections <TbArrowBadgeRightFilled className="font-xl" />
-              </button>
+              <Link to="/collections">
+                <button type="button" className="btn btn-secondary">
+                  View Collections{" "}
+                  <TbArrowBadgeRightFilled className="font-xl" />
+                </button>
+              </Link>
             </div>
             <div className="col">
               {" "}
