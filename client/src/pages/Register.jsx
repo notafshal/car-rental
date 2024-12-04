@@ -1,14 +1,46 @@
 import { useState } from "react";
 import NavBar from "../components/Navbar";
-
+import axios from "axios";
+import Toast from "react-bootstrap/Toast";
+import { useNavigate } from "react-router-dom";
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setfullName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [location, setLocation] = useState("");
   const [number, setNumber] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const navigate = useNavigate();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios
+      .post("http://localhost:8000/api/users", {
+        fullName,
+        email,
+        password,
+        location,
+        number,
+      })
+      .then((result) => {
+        console.log(result);
+        setToastMessage("Registration successful!");
+        setShowToast(true);
+        setFullName("");
+        setEmail("");
+        setPassword("");
+        setLocation("");
+        setNumber("");
+        setTimeout(() => {
+          navigate("/Login");
+        }, 2000);
+      })
+      .catch((err) => {
+        setToastMessage(err.response?.data?.message || "Registration failed!");
+        setShowToast(true);
+      });
+  };
 
-  const handleSubmit = () => {};
   return (
     <div>
       <NavBar />
@@ -19,21 +51,21 @@ const Register = () => {
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label htmlFor="fullName" className="form-label">
-                  Fullname
+                  Full Name
                 </label>
                 <input
-                  type="fullName"
+                  type="text"
                   className="form-control"
                   id="fullName"
-                  placeholder="Enter your fullname"
+                  placeholder="Enter your full name"
                   value={fullName}
-                  onChange={(e) => setfullName(e.target.value)}
+                  onChange={(e) => setFullName(e.target.value)}
                   required
                 />
               </div>
               <div className="mb-3">
                 <label htmlFor="email" className="form-label">
-                  Email address
+                  Email Address
                 </label>
                 <input
                   type="email"
@@ -64,10 +96,10 @@ const Register = () => {
                   Location
                 </label>
                 <input
-                  type="location"
+                  type="text"
                   className="form-control"
                   id="location"
-                  placeholder="Enter your loaction"
+                  placeholder="Enter your location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   required
@@ -81,7 +113,7 @@ const Register = () => {
                   type="text"
                   className="form-control"
                   id="number"
-                  placeholder="Enter your number"
+                  placeholder="Enter your phone number"
                   value={number}
                   onChange={(e) => setNumber(e.target.value)}
                   required
@@ -94,6 +126,27 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      <Toast
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+          zIndex: 1050,
+        }}
+        bg={toastMessage.includes("successful") ? "success" : "danger"}
+        autohide
+        delay={3000}
+      >
+        <Toast.Header>
+          <strong className="me-auto">
+            {toastMessage.includes("successful") ? "Success" : "Error"}
+          </strong>
+        </Toast.Header>
+        <Toast.Body>{toastMessage}</Toast.Body>
+      </Toast>
     </div>
   );
 };

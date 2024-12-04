@@ -37,7 +37,7 @@ const CarPage = () => {
       </Spinner>
     );
   }
-  console.log(car);
+
   return (
     <>
       <NavBar />

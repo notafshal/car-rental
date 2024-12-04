@@ -8,15 +8,15 @@ function Homepage() {
     <div>
       <NavBar />
       <div>
-        <h1 className="text-center mt-4"> Premium Car Rental Services</h1>
+        <h1 className="text-center mt-4">Premium Car Rental Services</h1>
         <h6 className="text-center mt-4">
           Affordable and flexible car rentals for every journey. Choose from a
-          wide range of vechiles for hassle-free travel experiences.
+          wide range of vehicles for hassle-free travel experiences.
         </h6>
-        <div className="card mt-4 mx-5 p-4 bg-light">
+        <div className="card mt-4 mx-3 mx-md-5 p-4 bg-light">
           <div className="row">
-            <div className="col">
-              <h3>BOOK YOUR CAR !! TODAY</h3>
+            <div className="col-12 col-md-6">
+              <h3>BOOK YOUR CAR TODAY</h3>
               <p>
                 Our cars are the perfect choice for a seamless car rental
                 experience, offering unmatched comfort, reliability, and style.
@@ -35,15 +35,8 @@ function Homepage() {
                 </button>
               </Link>
             </div>
-            <div className="col">
-              {" "}
-              <img
-                src={carImage}
-                alt="Car"
-                height="400"
-                width="600"
-                className="rounded"
-              />
+            <div className="col-12 col-md-6 mt-3 mt-md-0">
+              <img src={carImage} alt="Car" className="img-fluid rounded" />
             </div>
           </div>
         </div>

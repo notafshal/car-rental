@@ -42,16 +42,9 @@ const getUserById = async (req, res) => {
 };
 const registerUser = async (req, res) => {
   try {
-    const { fullName, email, password, location, number, isAdmin } = req.body;
+    const { fullName, email, password, location, number } = req.body;
 
-    if (
-      !fullName ||
-      !email ||
-      !location ||
-      !number ||
-      !password ||
-      isAdmin === undefined
-    ) {
+    if (!fullName || !email || !location || !number || !password) {
       return res.status(400).send({ message: "Provide all fields" });
     }
 
@@ -62,9 +55,9 @@ const registerUser = async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const [result] = await dbPool.query(
-      `INSERT INTO users (fullName, email, password, location, number, isAdmin) 
-         VALUES (?, ?, ?, ?, ?, ?)`,
-      [fullName, email, hashedPassword, location, number, isAdmin]
+      `INSERT INTO users (fullName, email, password, location, number) 
+         VALUES (?, ?, ?, ?, ?)`,
+      [fullName, email, hashedPassword, location, number]
     );
 
     if (!result || result.affectedRows === 0) {

@@ -1,11 +1,32 @@
 import { useState } from "react";
 import NavBar from "../components/Navbar";
 import { Link } from "react-router-dom";
-
+import Toast from "react-bootstrap/Toast";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const handleSubmit = () => {};
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const navigate = useNavigate();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios
+      .post("http://localhost:8000/api/auth/login", { email, password })
+      .then((result) => {
+        console.log(result);
+        setToastMessage("Login successful!");
+        setShowToast(true);
+        localStorage.setItem("key", result.token);
+        navigate("/collections");
+      })
+      .catch((err) => {
+        console.log(err);
+        setToastMessage(err.response?.data?.message || "Registration failed!");
+        setShowToast(true);
+      });
+  };
   return (
     <div>
       <NavBar />
@@ -52,6 +73,26 @@ const Login = () => {
           </div>
         </div>
       </div>
+      <Toast
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+          zIndex: 1050,
+        }}
+        bg={toastMessage.includes("successful") ? "success" : "danger"}
+        autohide
+        delay={3000}
+      >
+        <Toast.Header>
+          <strong className="me-auto">
+            {toastMessage.includes("successful") ? "Success" : "Error"}
+          </strong>
+        </Toast.Header>
+        <Toast.Body>{toastMessage}</Toast.Body>
+      </Toast>
     </div>
   );
 };
