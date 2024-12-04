@@ -1,11 +1,44 @@
 const dbPool = require("../config/db");
+const multer = require("multer");
+const path = require("path");
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|gif/;
+  const extname = allowedTypes.test(
+    path.extname(file.originalname).toLowerCase()
+  );
+  const mimetype = allowedTypes.test(file.mimetype);
+  if (extname && mimetype) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only images are allowed"));
+  }
+};
+const upload = multer({ storage: storage, fileFilter });
 const getCars = async (req, res) => {
   try {
-    const [rows] = await dbPool.query(" SELECT * FROM cars");
+    const [rows] = await dbPool.query(`
+      SELECT 
+        c.*, 
+        (SELECT cp.photo_url 
+         FROM carPhotos cp 
+         WHERE cp.car_id = c.id 
+         LIMIT 1) AS photo_url 
+      FROM cars c
+    `);
+
     if (!rows || rows.length === 0) {
       return res.status(404).send({ message: "No records found" });
     }
+
     res.status(200).send({
       message: "All cars records",
       totalCars: rows.length,
@@ -13,7 +46,7 @@ const getCars = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res.status(500).send({ message: "Error is getting data", err });
+    res.status(500).send({ message: "Error getting data", err });
   }
 };
 const getSingleCar = async (req, res) => {
@@ -25,17 +58,37 @@ const getSingleCar = async (req, res) => {
         message: "Invalid id",
       });
     }
-    const rows = await dbPool.query(` SELECT * FROM cars WHERE id=${carId}`);
-    if (!rows || rows.length === 0) {
-      return res.status(404).send({ message: "No records found" });
+
+    const [carRows] = await dbPool.query(
+      `
+      SELECT * FROM cars WHERE id = ?
+    `,
+      [carId]
+    );
+
+    if (!carRows || carRows.length === 0) {
+      return res.status(404).send({ message: "No car found" });
     }
+
+    const [photoRows] = await dbPool.query(
+      `
+      SELECT photo_url FROM carPhotos WHERE car_id = ?
+    `,
+      [carId]
+    );
+
+    const carData = {
+      ...carRows[0],
+      photos: photoRows.map((photo) => photo.photo_url),
+    };
+
     res.status(200).send({
       message: "Getting single data success",
-      data: rows[0],
+      data: carData,
     });
   } catch (err) {
     console.log(err);
-    res.status(500).send({ messge: "Error fetching ID" });
+    res.status(500).send({ message: "Error fetching car details", err });
   }
 };
 const newCar = async (req, res) => {
@@ -55,39 +108,32 @@ const newCar = async (req, res) => {
       TransmissionType,
       FuelType,
     } = req.body;
+
     if (
       !carName ||
       !model ||
       !make_year ||
       !capacity ||
-      !air_condition === undefined ||
-      !gps === undefined ||
-      !child_seats === undefined ||
+      air_condition === undefined ||
+      gps === undefined ||
+      child_seats === undefined ||
       !price_per_hour ||
       !price_per_day ||
       !price_per_week ||
       !carType ||
       !TransmissionType ||
-      !FuelType
+      !FuelType ||
+      !req.files ||
+      req.files.length === 0
     ) {
       return res
-        .status(404)
-        .send({ messge: "Provide all neccessary car Details" });
+        .status(400)
+        .send({ message: "Provide all necessary car details and images" });
     }
-    const [result] = await dbPool.query(
-      `INSERT INTO cars (carName,
-      model,
-      make_year,
-      capacity,
-      air_condition,
-      gps,
-      child_seats,
-      price_per_hour,
-      price_per_day,
-      price_per_week,
-      carType,
-      TransmissionType,
-      FuelType) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+
+    const [carResult] = await dbPool.query(
+      `INSERT INTO cars (carName, model, make_year, capacity, air_condition, gps, child_seats, price_per_hour, price_per_day, price_per_week, carType, TransmissionType, FuelType) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         carName,
         model,
@@ -104,18 +150,31 @@ const newCar = async (req, res) => {
         FuelType,
       ]
     );
-    if (!result || result.affectedRows === 0) {
-      return res.status(500).send({ message: "Error in insert query" });
+
+    if (carResult.affectedRows === 0) {
+      return res.status(500).send({ message: "Error adding car" });
     }
-    res.status(201).send({
-      message: "New Car Added",
-      userId: result.insertId,
+
+    const carId = carResult.insertId;
+    const photoPromises = req.files.map((file) => {
+      const photoUrl = `${req.protocol}://${req.get("host")}/uploads/${
+        file.filename
+      }`;
+      return dbPool.query(
+        `INSERT INTO carphotos (car_id, photo_url) VALUES (?, ?)`,
+        [carId, photoUrl]
+      );
     });
+
+    await Promise.all(photoPromises);
+
+    res.status(201).send({ message: "New Car Added with Photos", carId });
   } catch (err) {
-    console.log(err);
-    res.status(500).send({ message: "New Car cannot be added", err });
+    console.error(err);
+    res.status(500).send({ message: "New Car cannot be added", error: err });
   }
 };
+
 const updateCar = async (req, res) => {
   try {
     const carId = req.params.id;
@@ -213,4 +272,11 @@ const deleteCar = async (req, res) => {
   }
 };
 
-module.exports = { getCars, getSingleCar, newCar, updateCar, deleteCar };
+module.exports = {
+  getCars,
+  getSingleCar,
+  newCar,
+  updateCar,
+  deleteCar,
+  upload,
+};

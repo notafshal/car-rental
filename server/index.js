@@ -8,12 +8,14 @@ const carRouter = require("./routes/carRoutes");
 const bookingRouter = require("./routes/bookingRouter");
 const authRouter = require("./routes/auth");
 const cors = require("cors");
-
+const path = require("path");
 dotenv.config();
+
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/auth", authRouter);
 app.use("/api/cars", carRouter);
 app.use("/api/users", userRouter);
