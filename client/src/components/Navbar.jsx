@@ -6,6 +6,7 @@ import Navbar from "react-bootstrap/Navbar";
 import { Link } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
 function NavBar() {
+  const isLoggedIn = localStorage.getItem("key");
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container fluid>
@@ -20,9 +21,19 @@ function NavBar() {
             <Link to="/" className="nav-link">
               Home
             </Link>
-            <Link to="/login" className="nav-link">
-              LogIn
-            </Link>
+
+            {isLoggedIn ? (
+              <Link to="/profile" className="nav-link">
+                {" "}
+                <span>Account</span>{" "}
+              </Link>
+            ) : (
+              <Link to="/login" className="nav-link">
+                {" "}
+                <span>Login</span>{" "}
+              </Link>
+            )}
+
             <Link to="/collections" className="nav-link">
               Collections
             </Link>

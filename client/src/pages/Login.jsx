@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import NavBar from "../components/Navbar";
 import { Link } from "react-router-dom";
 import Toast from "react-bootstrap/Toast";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { UserContext } from "../context/UserContext";
 const Login = () => {
+  const { setUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showToast, setShowToast] = useState(false);
@@ -15,10 +17,12 @@ const Login = () => {
     axios
       .post("http://localhost:8000/api/auth/login", { email, password })
       .then((result) => {
-        console.log(result);
+        setUser(result.data.data);
         setToastMessage("Login successful!");
         setShowToast(true);
         localStorage.setItem("key", result.token);
+        localStorage.setItem("user", JSON.stringify(result.data.user));
+
         navigate("/collections");
       })
       .catch((err) => {

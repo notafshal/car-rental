@@ -25,6 +25,14 @@ const login = async (req, res) => {
     process.env.JWT_SECRET || "secret--key",
     { expiresIn: "1h" }
   );
-  res.status(200).send({ message: "Login successful", token: token });
+  const userData = {
+    id: user[0].id,
+    name: user[0].name,
+    email: user[0].email,
+    phone: user[0].phone,
+  };
+  res
+    .status(200)
+    .send({ message: "Login successful", token: token, data: userData });
 };
 module.exports = login;

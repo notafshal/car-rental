@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Carousel from "react-bootstrap/Carousel";
@@ -15,7 +15,7 @@ import NavBar from "../components/Navbar";
 const CarPage = () => {
   const { id } = useParams();
   const [car, setCar] = useState(null);
-
+  const [selectedPrice, setSelectedPrice] = useState("hour");
   useEffect(() => {
     const fetchCarDetails = async () => {
       try {
@@ -37,7 +37,22 @@ const CarPage = () => {
       </Spinner>
     );
   }
+  const handlePriceSelection = (priceType) => {
+    setSelectedPrice(priceType);
+  };
 
+  const renderPrice = () => {
+    switch (selectedPrice) {
+      case "hour":
+        return car.price_per_hour;
+      case "day":
+        return car.price_per_day;
+      case "week":
+        return car.price_per_week;
+      default:
+        return car.price_per_hour;
+    }
+  };
   return (
     <>
       <NavBar />
@@ -119,27 +134,41 @@ const CarPage = () => {
                   <div>
                     <Dropdown>
                       <Dropdown.Toggle variant="primary" id="dropdown-basic">
-                        Price
+                        Price ({selectedPrice})
                       </Dropdown.Toggle>
 
                       <Dropdown.Menu>
-                        <Dropdown.Item href="#/action-1">
+                        <Dropdown.Item
+                          onClick={() => handlePriceSelection("hour")}
+                        >
                           {car.price_per_hour}/hour
                         </Dropdown.Item>
-                        <Dropdown.Item href="#/action-2">
+                        <Dropdown.Item
+                          onClick={() => handlePriceSelection("day")}
+                        >
                           {car.price_per_day}/day
                         </Dropdown.Item>
-                        <Dropdown.Item href="#/action-3">
+                        <Dropdown.Item
+                          onClick={() => handlePriceSelection("week")}
+                        >
                           {car.price_per_week}/week
                         </Dropdown.Item>
                       </Dropdown.Menu>
                     </Dropdown>
+                    <div className="mt-2">
+                      <strong>Selected Price: {renderPrice()}</strong>
+                    </div>
                   </div>
                 </Card.Text>
                 <div className="d-flex justify-content-center mt-3">
-                  <Button variant="primary" className="w-100">
-                    Book Now
-                  </Button>
+                  <Link to="/bookpage">
+                    <Button
+                      variant={car.availability === 1 ? "primary" : "danger"}
+                      className="w-100"
+                    >
+                      Book Now
+                    </Button>
+                  </Link>
                 </div>
               </Card.Body>
             </Card>
