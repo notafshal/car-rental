@@ -161,7 +161,11 @@ const CarPage = () => {
                   </div>
                 </Card.Text>
                 <div className="d-flex justify-content-center mt-3">
-                  <Link to="/bookpage">
+                  <Link
+                    to={{
+                      pathname: `/bookpage/${car.id}`,
+                    }}
+                  >
                     <Button
                       variant={car.availability === 1 ? "primary" : "danger"}
                       className="w-100"

@@ -27,9 +27,10 @@ const login = async (req, res) => {
   );
   const userData = {
     id: user[0].id,
-    name: user[0].name,
+    name: user[0].fullName,
     email: user[0].email,
-    phone: user[0].phone,
+    phone: user[0].number,
+    location: user[0].location,
   };
   res
     .status(200)

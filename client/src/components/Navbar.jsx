@@ -24,7 +24,6 @@ function NavBar() {
 
             {isLoggedIn ? (
               <Link to="/profile" className="nav-link">
-                {" "}
                 <span>Account</span>{" "}
               </Link>
             ) : (

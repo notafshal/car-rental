@@ -84,11 +84,11 @@ const updateUser = async (req, res) => {
         message: "Invalid Id",
       });
     }
-    const { fullName, email, password, location, number } = req.body;
+    const { fullName, email, location, number } = req.body;
 
     const [data] = await dbPool.query(
-      `UPDATE users SET fullName = ?, email = ?, password = ?, location = ?, number = ? WHERE id = ?`,
-      [fullName, email, password, location, number, userId]
+      `UPDATE users SET fullName = ?, email = ?, location = ?, number = ? WHERE id = ?`,
+      [fullName, email, location, number, userId]
     );
 
     if (data.affectedRows === 0) {

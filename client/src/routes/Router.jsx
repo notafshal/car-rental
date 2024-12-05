@@ -6,6 +6,8 @@ import Homepage from "../pages/Homepage";
 import Collections from "../pages/Collections";
 import CarPage from "../pages/CarPage";
 import BookPage from "../pages/BookPage";
+import Profile from "../pages/Profile";
+import EditProfile from "../pages/EditProfile";
 
 const Routers = () => {
   return (
@@ -17,6 +19,8 @@ const Routers = () => {
           <Route path="/Register" element={<Register />} exact />
           <Route path="/collections" element={<Collections />} exact />
           <Route path="/cars/:id" element={<CarPage />} />
+          <Route path="/profile" element={<Profile />} exact />
+          <Route path="/edit-profile" element={<EditProfile />} exact />
           <Route path="/bookpage/:id" element={<BookPage />} />
         </Routes>
       </BrowserRouter>

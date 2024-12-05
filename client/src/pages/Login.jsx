@@ -17,17 +17,18 @@ const Login = () => {
     axios
       .post("http://localhost:8000/api/auth/login", { email, password })
       .then((result) => {
-        setUser(result.data.data);
+        const token = result.data.token;
+        const user = result.data.data;
+        setUser(user);
         setToastMessage("Login successful!");
         setShowToast(true);
-        localStorage.setItem("key", result.token);
-        localStorage.setItem("user", JSON.stringify(result.data.user));
-
+        localStorage.setItem("key", token);
+        localStorage.setItem("user", JSON.stringify(user));
         navigate("/collections");
       })
       .catch((err) => {
         console.log(err);
-        setToastMessage(err.response?.data?.message || "Registration failed!");
+        setToastMessage(err.response?.data?.message || "Login failed!");
         setShowToast(true);
       });
   };
