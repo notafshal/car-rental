@@ -19,12 +19,17 @@ const Login = () => {
       .then((result) => {
         const token = result.data.token;
         const user = result.data.data;
+
         setUser(user);
         setToastMessage("Login successful!");
         setShowToast(true);
         localStorage.setItem("key", token);
         localStorage.setItem("user", JSON.stringify(user));
-        navigate("/collections");
+        {
+          user.isAdmin === 1
+            ? navigate("/dashboard")
+            : navigate("/collections");
+        }
       })
       .catch((err) => {
         console.log(err);

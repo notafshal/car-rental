@@ -26,8 +26,8 @@ const BookPage = () => {
     const bookingData = {
       user_id: user.id,
       car_id: carId,
-      start_date: startDate || null, // Optional based on durationType
-      end_date: endDate || null, // Optional based on durationType
+      start_date: startDate || null,
+      end_date: endDate || null,
       durationType,
       durationValue,
     };

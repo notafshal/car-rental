@@ -31,6 +31,7 @@ const login = async (req, res) => {
     email: user[0].email,
     phone: user[0].number,
     location: user[0].location,
+    isAdmin: user[0].isAdmin,
   };
   res
     .status(200)

@@ -9,6 +9,7 @@ import BookPage from "../pages/BookPage";
 import Profile from "../pages/Profile";
 import EditProfile from "../pages/EditProfile";
 import ViewBookings from "../pages/ViewBookings";
+import Dashboard from "../pages/Dashboard";
 
 const Routers = () => {
   return (
@@ -24,6 +25,7 @@ const Routers = () => {
           <Route path="/edit-profile" element={<EditProfile />} exact />
           <Route path="/bookpage/:id" element={<BookPage />} />
           <Route path="/viewbooking" element={<ViewBookings />} exact />
+          <Route path="/dashboard" element={<Dashboard />} exact />
         </Routes>
       </BrowserRouter>
     </>

@@ -5,8 +5,13 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { Link } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
+import { UserContext } from "../context/UserContext";
+import { useContext } from "react";
+
 function NavBar() {
   const isLoggedIn = localStorage.getItem("key");
+  const { user } = useContext(UserContext);
+
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container fluid>
@@ -24,18 +29,23 @@ function NavBar() {
 
             {isLoggedIn ? (
               <Link to="/profile" className="nav-link">
-                <span>Account</span>{" "}
+                <span>Account</span>
               </Link>
             ) : (
               <Link to="/login" className="nav-link">
-                {" "}
-                <span>Login</span>{" "}
+                <span>Login</span>
               </Link>
             )}
 
             <Link to="/collections" className="nav-link">
               Collections
             </Link>
+
+            {user && user.isAdmin === 1 && (
+              <Link to="/dashboard" className="nav-link">
+                Dashboard
+              </Link>
+            )}
           </Nav>
           <Form className="d-flex">
             <Form.Control

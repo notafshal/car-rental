@@ -5,34 +5,38 @@ import { UserContext } from "../context/UserContext";
 import NavBar from "../components/Navbar";
 
 const Profile = () => {
-  const { user, setUser } = useContext(UserContext); // Renaming 'users' to 'user' for clarity
+  const { user, setUser } = useContext(UserContext);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Handle logout functionality
   const handleLogout = () => {
-    setUser(null); // Clear user context
-    localStorage.removeItem("user"); // Remove user data from localStorage
-    localStorage.removeItem("key"); // Remove user data from localStorage
-    navigate("/login"); // Redirect to login page
+    setUser(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("key");
+    navigate("/login");
   };
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userId = user?.id;
-        if (!userId) {
+        const token = localStorage.getItem("key");
+
+        if (!userId || !token) {
           setError("No user found. Please log in.");
           setLoading(false);
           return;
         }
 
         const response = await axios.get(
-          `http://localhost:8000/api/users/${userId}`
+          `http://localhost:8000/api/users/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
-        setUserData(response.data.data.user); // Corrected to match the API response
+        setUserData(response.data.data.user);
       } catch (err) {
         console.error("Error fetching user data:", err);
         setError("Error fetching user data. Please try again.");
@@ -83,7 +87,8 @@ const Profile = () => {
                       <strong>Email:</strong> {userData.email}
                     </li>
                     <li className="list-group-item">
-                      <strong>Phone:</strong> {userData.phone || "Not Provided"}
+                      <strong>Phone:</strong>{" "}
+                      {userData.number || "Not Provided"}
                     </li>
                     <li className="list-group-item">
                       <strong>Location:</strong>{" "}
