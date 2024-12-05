@@ -8,6 +8,7 @@ import CarPage from "../pages/CarPage";
 import BookPage from "../pages/BookPage";
 import Profile from "../pages/Profile";
 import EditProfile from "../pages/EditProfile";
+import ViewBookings from "../pages/ViewBookings";
 
 const Routers = () => {
   return (
@@ -22,6 +23,7 @@ const Routers = () => {
           <Route path="/profile" element={<Profile />} exact />
           <Route path="/edit-profile" element={<EditProfile />} exact />
           <Route path="/bookpage/:id" element={<BookPage />} />
+          <Route path="/viewbooking" element={<ViewBookings />} exact />
         </Routes>
       </BrowserRouter>
     </>
