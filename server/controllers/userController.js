@@ -22,24 +22,45 @@ const getUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const userID = req.params.id;
+
     if (!userID) {
-      return res.status(404).send({
+      return res.status(400).send({
         message: "Invalid ID",
       });
     }
-    const rows = await dbPool.query(` SELECT * FROM users WHERE id=${userID}`);
-    if (!rows || rows.length === 0) {
-      return res.status(404).send({ message: "No records found" });
+
+    const [userRows] = await dbPool.query(`SELECT * FROM users WHERE id = ?`, [
+      userID,
+    ]);
+
+    if (!userRows || userRows.length === 0) {
+      return res.status(404).send({ message: "User not found" });
     }
+
+    const [bookingRows] = await dbPool.query(
+      `SELECT b.*, c.carName AS car_name, c.model AS car_model
+       FROM bookings b
+       LEFT JOIN cars c ON b.car_id = c.id
+       WHERE b.user_id = ?`,
+      [userID]
+    );
+
     res.status(200).send({
-      message: "Getting single data success",
-      data: rows[0],
+      message: "User data and booking history retrieved successfully",
+      data: {
+        user: userRows[0],
+        bookings: bookingRows,
+      },
     });
   } catch (err) {
-    console.log(err);
-    res.status(500).send({ message: "No user found", err });
+    console.error("Error fetching user and bookings:", err.message || err);
+    res.status(500).send({
+      message: "Error fetching user and bookings",
+      error: err?.message || JSON.stringify(err),
+    });
   }
 };
+
 const registerUser = async (req, res) => {
   try {
     const { fullName, email, password, location, number } = req.body;
