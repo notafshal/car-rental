@@ -17,13 +17,16 @@ const corsOptions = {
 };
 app.use(express.json());
 app.use(cors(corsOptions));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use("/api/auth", authRouter);
+
 app.use("/api/cars", carRouter);
 app.use("/api/users", userRouter);
 app.use("/api/booking", bookingRouter);
+
 app.get("/", (req, res) => {
   res.status(200).send("<h1>Running</h1>");
 });

@@ -230,7 +230,7 @@ const updateCar = async (req, res) => {
         carType,
         TransmissionType,
         FuelType,
-        carId, // Ensure that the carId is included to target the correct row
+        carId,
       ]
     );
 
@@ -271,6 +271,51 @@ const deleteCar = async (req, res) => {
     });
   }
 };
+const filetringCar = async (req, res) => {
+  res.status(200).send({ message: "hit" });
+};
+const hello = async (req, res) => {
+  res.status(200).send({ message: "hit" });
+};
+// const filetringCar = async (req, res) => {
+//   const { carType, minPrice, maxPrice, TransmissionType, FuelType } = req.query;
+
+//   let query = "SELECT * FROM cars WHERE 1=1";
+//   const values = [];
+
+//   if (carType) {
+//     query += " AND carType = ?";
+//     values.push(carType);
+//   }
+//   if (TransmissionType) {
+//     query += " AND LOWER(TransmissionType) = ?";
+//     values.push(TransmissionType.toLowerCase());
+//   }
+//   if (FuelType) {
+//     query += " AND LOWER(FuelType) = ?";
+//     values.push(FuelType.toLowerCase());
+//   }
+//   if (minPrice) {
+//     query += " AND price_per_day >= ?";
+//     values.push(Number(minPrice));
+//   }
+//   if (maxPrice) {
+//     query += " AND price_per_day <= ?";
+//     values.push(Number(maxPrice));
+//   }
+//   try {
+//     const [rows] = await db.execute(query, values);
+
+//     if (rows.length === 0) {
+//       return res.status(404).json({ message: "No car found" });
+//     }
+
+//     res.json(rows);
+//   } catch (error) {
+//     console.error("Error fetching filtered cars:", error);
+//     res.status(500).json({ message: "Error fetching filtered cars", error });
+//   }
+// };
 
 module.exports = {
   getCars,
@@ -279,4 +324,6 @@ module.exports = {
   updateCar,
   deleteCar,
   upload,
+  filetringCar,
+  hello,
 };

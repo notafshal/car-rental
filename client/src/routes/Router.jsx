@@ -25,7 +25,7 @@ const Routers = () => {
           <Route path="/edit-profile" element={<EditProfile />} exact />
           <Route path="/bookpage/:id" element={<BookPage />} />
           <Route path="/viewbooking" element={<ViewBookings />} exact />
-          <Route path="/dashboard" element={<Dashboard />} exact />
+          <Routes path="/dashboard" element={<Dashboard />} exact />
         </Routes>
       </BrowserRouter>
     </>
