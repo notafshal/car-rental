@@ -10,6 +10,7 @@ import Profile from "../pages/Profile";
 import EditProfile from "../pages/EditProfile";
 import ViewBookings from "../pages/ViewBookings";
 import Dashboard from "../pages/Dashboard";
+import FilteredResults from "../pages/FilteredResults";
 
 const Routers = () => {
   return (
@@ -20,12 +21,13 @@ const Routers = () => {
           <Route path="/Login" element={<Login />} exact />
           <Route path="/Register" element={<Register />} exact />
           <Route path="/collections" element={<Collections />} exact />
-          <Route path="/cars/:id" element={<CarPage />} />
           <Route path="/profile" element={<Profile />} exact />
           <Route path="/edit-profile" element={<EditProfile />} exact />
-          <Route path="/bookpage/:id" element={<BookPage />} />
           <Route path="/viewbooking" element={<ViewBookings />} exact />
-          <Routes path="/dashboard" element={<Dashboard />} exact />
+          <Route path="/dashboard" element={<Dashboard />} exact />
+          <Route path="/filtered-results" element={<FilteredResults />} />
+          <Route path="/cars/:id" element={<CarPage />} />
+          <Route path="/bookpage/:id" element={<BookPage />} />
         </Routes>
       </BrowserRouter>
     </>

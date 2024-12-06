@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import axios from "axios";
 import { PiSeatbelt } from "react-icons/pi";
 import NavBar from "../components/Navbar";
@@ -15,47 +16,71 @@ function Collections() {
   const [filters, setFilters] = useState({
     carType: "",
     TransmissionType: "",
-    fuelType: "",
+    FuelType: "",
     minPrice: "",
     maxPrice: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch all cars on initial render
   useEffect(() => {
+    setLoading(true);
     axios
       .get("http://localhost:8000/api/cars")
-      .then((res) => setCars(res.data.data || []))
+      .then((res) => {
+        setCars(res.data.data || []);
+        setLoading(false);
+      })
       .catch((err) => {
         console.error("Error fetching cars:", err);
+        setError("Failed to fetch cars. Please try again later.");
+        setLoading(false);
       });
   }, []);
 
-  // Handle filter input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFilters({ ...filters, [name]: value });
   };
 
-  // Handle filter form submission
-  const handleFilterSubmit = (e) => {
+  const handleFilterSubmit = async (e) => {
     e.preventDefault();
-    const query = new URLSearchParams(filters).toString();
-    navigate(`/filtered-results?${query}`);
+    setLoading(true);
+    setError(null);
+
+    const query = new URLSearchParams(
+      Object.entries(filters).filter(([_, value]) => value)
+    ).toString();
+
+    try {
+      const res = await axios.get(
+        `http://localhost:8000/api/cars/filters?${query}`
+      );
+      if (res.data.length === 0) {
+        setError("No cars found matching your filters.");
+        setCars([]);
+      } else {
+        setCars(res.data);
+      }
+    } catch (err) {
+      console.error("Error fetching filtered cars:", err);
+      setError("Failed to fetch filtered cars. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div>
       <NavBar />
 
-      {/* Filter Section */}
-      <Card className="mx-5 bg-light">
+      <Card className="mx-4 my-3 bg-light shadow">
         <h2 className="text-center my-3">Filter Cars</h2>
         <Card.Body>
           <Form onSubmit={handleFilterSubmit}>
             <div className="row g-3">
-              {/* Car Type Filter */}
-              <div className="col-md-3">
+              <div className="col-12 col-md-6 col-lg-3">
                 <Form.Group>
                   <Form.Label>Car Type</Form.Label>
                   <Form.Select
@@ -66,13 +91,12 @@ function Collections() {
                     <option value="">All</option>
                     <option value="SUV">SUV</option>
                     <option value="Sedan">Sedan</option>
-                    <option value="Hatchback">Hatchback</option>
+                    <option value="Jeep">Jeep</option>
                   </Form.Select>
                 </Form.Group>
               </div>
 
-              {/* Transmission Type Filter */}
-              <div className="col-md-3">
+              <div className="col-12 col-md-6 col-lg-3">
                 <Form.Group>
                   <Form.Label>Transmission Type</Form.Label>
                   <Form.Select
@@ -81,31 +105,29 @@ function Collections() {
                     onChange={handleInputChange}
                   >
                     <option value="">All</option>
-                    <option value="Manual">Manual</option>
-                    <option value="Automatic">Automatic</option>
+                    <option value="manual">Manual</option>
+                    <option value="automatic">Automatic</option>
                   </Form.Select>
                 </Form.Group>
               </div>
 
-              {/* Fuel Type Filter */}
-              <div className="col-md-3">
+              <div className="col-12 col-md-6 col-lg-3">
                 <Form.Group>
                   <Form.Label>Fuel Type</Form.Label>
                   <Form.Select
-                    name="fuelType"
-                    value={filters.fuelType}
+                    name="FuelType"
+                    value={filters.FuelType}
                     onChange={handleInputChange}
                   >
                     <option value="">All</option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="Diesel">Diesel</option>
-                    <option value="Electric">Electric</option>
+                    <option value="petrol">Petrol</option>
+                    <option value="diesel">Diesel</option>
+                    <option value="electric">Electric</option>
                   </Form.Select>
                 </Form.Group>
               </div>
 
-              {/* Price Range Filter */}
-              <div className="col-md-3">
+              <div className="col-12 col-md-6 col-lg-3">
                 <Form.Group>
                   <Form.Label>Price Range</Form.Label>
                   <div className="d-flex">
@@ -130,69 +152,72 @@ function Collections() {
             </div>
 
             <div className="text-end mt-3">
-              <Button type="submit" variant="primary">
-                Apply Filters
+              <Button type="submit" variant="primary" disabled={loading}>
+                {loading ? "Loading..." : "Apply Filters"}
               </Button>
             </div>
           </Form>
         </Card.Body>
       </Card>
 
-      {/* Car Collection Section */}
-      <Card className="mx-5 bg-light mt-4">
+      <Card className="mx-4 my-3 bg-light shadow">
         <h2 className="text-center my-3">Our Collections</h2>
         <Card.Body>
-          <div className="row g-4">
-            {cars.map((data) => (
-              <div className="col-12 col-sm-6 col-md-4 col-lg-3" key={data.id}>
-                <Card style={{ width: "100%" }}>
-                  <Card.Img
-                    variant="top"
-                    src={data.photo_url || "/default-image.jpg"}
-                    className="p-2 rounded"
-                    alt="Car"
-                  />
-                  <Card.Body>
-                    <Card.Title className="d-flex justify-content-between">
-                      <div>
-                        {data.carName} | {data.model} | {data.make_year}
+          {error ? (
+            <p className="text-center text-danger">{error}</p>
+          ) : loading ? (
+            <p className="text-center">Loading...</p>
+          ) : (
+            <div className="row g-4">
+              {cars.map((car) => (
+                <div className="col-12 col-sm-6 col-md-4 col-lg-3" key={car.id}>
+                  <Card className="h-100">
+                    <Card.Img
+                      variant="top"
+                      src={car.photo_url || "/default-image.jpg"}
+                      className="p-2 rounded"
+                      alt="Car"
+                    />
+                    <Card.Body>
+                      <Card.Title className="d-flex justify-content-between">
+                        <span>{car.carName}</span>
+                        <span>
+                          {car.price_per_hour}
+                          <small>/hour</small>
+                        </span>
+                      </Card.Title>
+                      <Card.Text className="d-flex justify-content-between text-primary my-2">
+                        <span className="d-flex flex-column text-center">
+                          <PiSeatbelt />
+                          {car.capacity}
+                        </span>
+                        <span className="d-flex flex-column text-center">
+                          <FaCar />
+                          {car.carType}
+                        </span>
+                        <span className="d-flex flex-column text-center">
+                          <VscSourceControl />
+                          {car.TransmissionType}
+                        </span>
+                        <span className="d-flex flex-column text-center">
+                          <IoSpeedometer />
+                          {car.FuelType}
+                        </span>
+                      </Card.Text>
+                      <div className="d-flex justify-content-between">
+                        <Button variant="primary">Book Now</Button>
+                        <Link to={`/cars/${car.id}`}>
+                          <Button variant="secondary">
+                            <FaEye /> View
+                          </Button>
+                        </Link>
                       </div>
-                      <div>
-                        {data.price_per_hour}
-                        <span className="text-secondary">/hour</span>
-                      </div>
-                    </Card.Title>
-                    <Card.Text className="d-flex justify-content-between text-primary my-2">
-                      <span className="d-flex flex-column">
-                        <PiSeatbelt />
-                        {data.capacity}
-                      </span>
-                      <span className="d-flex flex-column">
-                        <FaCar />
-                        {data.carType}
-                      </span>
-                      <span className="d-flex flex-column">
-                        <VscSourceControl />
-                        {data.TransmissionType}
-                      </span>
-                      <span className="d-flex flex-column">
-                        <IoSpeedometer />
-                        {data.fuelType}
-                      </span>
-                    </Card.Text>
-                    <div className="d-flex justify-content-between">
-                      <Button variant="primary">Book Now</Button>
-                      <Link to={`/cars/${data.id}`}>
-                        <Button variant="secondary">
-                          <FaEye /> View
-                        </Button>
-                      </Link>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </div>
-            ))}
-          </div>
+                    </Card.Body>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          )}
         </Card.Body>
       </Card>
     </div>

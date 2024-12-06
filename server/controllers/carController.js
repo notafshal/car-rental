@@ -274,7 +274,14 @@ const deleteCar = async (req, res) => {
 
 const filetringCar = async (req, res) => {
   const { carType, minPrice, maxPrice, TransmissionType, FuelType } = req.query;
-  let query = "SELECT * FROM cars WHERE 1=1";
+  let query = `
+    SELECT c.*, 
+      (SELECT cp.photo_url 
+       FROM carPhotos cp 
+       WHERE cp.car_id = c.id 
+       LIMIT 1) AS photo_url 
+    FROM cars c WHERE 1=1
+  `;
   const values = [];
   if (carType) {
     query += " AND carType = ?";
@@ -301,6 +308,7 @@ const filetringCar = async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ message: "No car found" });
     }
+
     res.json(rows);
   } catch (error) {
     console.error("Error fetching filtered cars:", error);
