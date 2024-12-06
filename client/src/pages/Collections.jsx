@@ -18,7 +18,7 @@ function Collections() {
         console.log(err);
       });
   }, []);
-  console.log(cars.map((data) => data.photo_url));
+
   return (
     <div>
       <NavBar />

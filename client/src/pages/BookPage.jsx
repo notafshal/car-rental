@@ -35,7 +35,7 @@ const BookPage = () => {
     try {
       await axios.post("http://localhost:8000/api/cars/book", bookingData, {
         headers: {
-          Authorization: `Bearer ${token}`, // Include token for authentication
+          Authorization: `Bearer ${token}`,
         },
       });
       setSuccess("Car booked successfully!");
