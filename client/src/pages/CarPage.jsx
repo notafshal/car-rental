@@ -1,10 +1,13 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Carousel from "react-bootstrap/Carousel";
 import Spinner from "react-bootstrap/Spinner";
+import ListGroup from "react-bootstrap/ListGroup";
+import Modal from "react-bootstrap/Modal";
+import Form from "react-bootstrap/Form";
 import { PiChairThin, PiSeatbelt } from "react-icons/pi";
 import { FaCar, FaWind } from "react-icons/fa";
 import { VscSourceControl } from "react-icons/vsc";
@@ -12,31 +15,50 @@ import { IoSpeedometer } from "react-icons/io5";
 import { TbGps } from "react-icons/tb";
 import Dropdown from "react-bootstrap/Dropdown";
 import NavBar from "../components/Navbar";
+import { UserContext } from "../context/UserContext";
+
 const CarPage = () => {
   const { id } = useParams();
+  const { user } = useContext(UserContext);
+
   const [car, setCar] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState("hour");
+  const [loadingReviews, setLoadingReviews] = useState(true);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [newReview, setNewReview] = useState({
+    rating: "",
+    comment: "",
+    user_id: 0,
+  });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchCarDetails = async () => {
       try {
         const response = await axios.get(
           `http://localhost:8000/api/cars/${id}`
         );
+        const reviewsData = response.data.reviews || [];
         setCar(response.data.data);
+        setReviews(reviewsData.filter((review) => review !== null));
+        setLoadingReviews(false);
       } catch (error) {
         console.error("Error fetching car details:", error);
+        setLoadingReviews(false);
       }
     };
 
     fetchCarDetails();
   }, [id]);
-  if (!car) {
-    return (
-      <Spinner animation="border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </Spinner>
-    );
-  }
+  useEffect(() => {
+    if (user && user.id) {
+      setNewReview((prevReview) => ({
+        ...prevReview,
+        user_id: user.id,
+      }));
+    }
+  }, [user]);
   const handlePriceSelection = (priceType) => {
     setSelectedPrice(priceType);
   };
@@ -53,6 +75,37 @@ const CarPage = () => {
         return car.price_per_hour;
     }
   };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    const UserIdData = user.id;
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8000/api/cars/${id}/reviews`,
+        newReview
+      );
+      setReviews((prev) => [...prev, response.data.review]);
+      setShowReviewModal(false);
+      setNewReview({ rating: "", comment: "", user_id: UserIdData });
+      navigate("/collections");
+      alert("Review added successfully!");
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!car) {
+    return (
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+    );
+  }
+
   return (
     <>
       <NavBar />
@@ -131,6 +184,7 @@ const CarPage = () => {
                       </small>
                     </span>
                   </div>
+
                   <div>
                     <Dropdown>
                       <Dropdown.Toggle variant="primary" id="dropdown-basic">
@@ -178,8 +232,80 @@ const CarPage = () => {
             </Card>
           </div>
         </div>
+
+        <div className="mt-4">
+          <h3 className="text-center">Reviews</h3>
+          {loadingReviews ? (
+            <Spinner
+              animation="border"
+              role="status"
+              className="d-block mx-auto"
+            >
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          ) : reviews.length > 0 ? (
+            <ListGroup>
+              {reviews.map((review, index) => (
+                <ListGroup.Item key={index}>
+                  <strong>Rating:</strong> {review.rating} / 5
+                  <p>{review.comment}</p>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          ) : (
+            <p className="text-center">No reviews yet.</p>
+          )}
+          <div className="d-flex justify-content-center mt-3">
+            <Button onClick={() => setShowReviewModal(true)}>Add Review</Button>
+          </div>
+        </div>
       </div>
+
+      <Modal
+        show={showReviewModal}
+        onHide={() => setShowReviewModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Add a Review</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleReviewSubmit}>
+            <Form.Group className="mb-3" controlId="formRating">
+              <Form.Label>Rating</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter a rating (1-5)"
+                min="1"
+                max="5"
+                value={newReview.rating}
+                onChange={(e) =>
+                  setNewReview({ ...newReview, rating: e.target.value })
+                }
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formComment">
+              <Form.Label>Comment</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                placeholder="Write your review..."
+                value={newReview.comment}
+                onChange={(e) =>
+                  setNewReview({ ...newReview, comment: e.target.value })
+                }
+                required
+              />
+            </Form.Group>
+            <Button type="submit" disabled={loading} className="w-100">
+              {loading ? "Submitting..." : "Submit Review"}
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };
+
 export default CarPage;
