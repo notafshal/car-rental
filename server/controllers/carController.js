@@ -54,26 +54,38 @@ const getSingleCar = async (req, res) => {
     const carId = req.params.id;
 
     if (!carId) {
-      return res.status(404).send({
-        message: "Invalid id",
-      });
+      return res.status(400).json({ message: "Invalid car ID provided" });
     }
 
+    // Fetch car details
     const [carRows] = await dbPool.query(
       `
       SELECT * FROM cars WHERE id = ?
-    `,
+      `,
       [carId]
     );
 
     if (!carRows || carRows.length === 0) {
-      return res.status(404).send({ message: "No car found" });
+      return res.status(404).json({ message: "Car not found" });
     }
 
+    // Fetch reviews
+    const [reviews] = await dbPool.query(
+      `
+      SELECT r.rating, r.comment, u.username 
+      FROM reviews r 
+      INNER JOIN users u ON r.user_id = u.id 
+      WHERE r.car_id = ?
+      ORDER BY r.created_at DESC
+      `,
+      [carId]
+    );
+
+    // Fetch photos
     const [photoRows] = await dbPool.query(
       `
       SELECT photo_url FROM carPhotos WHERE car_id = ?
-    `,
+      `,
       [carId]
     );
 
@@ -82,15 +94,17 @@ const getSingleCar = async (req, res) => {
       photos: photoRows.map((photo) => photo.photo_url),
     };
 
-    res.status(200).send({
-      message: "Getting single data success",
+    res.status(200).json({
+      message: "Car details fetched successfully",
       data: carData,
+      reviews: reviews || [],
     });
-  } catch (err) {
-    console.log(err);
-    res.status(500).send({ message: "Error fetching car details", err });
+  } catch (error) {
+    console.error("Error fetching car details:", error);
+    res.status(500).json({ message: "Error fetching car details", error });
   }
 };
+
 const newCar = async (req, res) => {
   try {
     const {
