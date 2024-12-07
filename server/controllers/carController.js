@@ -57,7 +57,6 @@ const getSingleCar = async (req, res) => {
       return res.status(400).json({ message: "Invalid car ID provided" });
     }
 
-    // Fetch car details
     const [carRows] = await dbPool.query(
       `
       SELECT * FROM cars WHERE id = ?
@@ -69,7 +68,6 @@ const getSingleCar = async (req, res) => {
       return res.status(404).json({ message: "Car not found" });
     }
 
-    // Fetch reviews
     const [reviews] = await dbPool.query(
       `
       SELECT r.rating, r.comment, u.username 
@@ -81,7 +79,6 @@ const getSingleCar = async (req, res) => {
       [carId]
     );
 
-    // Fetch photos
     const [photoRows] = await dbPool.query(
       `
       SELECT photo_url FROM carPhotos WHERE car_id = ?
@@ -330,6 +327,39 @@ const filetringCar = async (req, res) => {
   }
 };
 
+const postReviews = async (req, res) => {
+  const { id: carId } = req.params;
+  const { user_id, rating, comment } = req.body;
+  if (!rating || !comment || !user_id) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+  try {
+    const [user] = await dbPool.query("SELECT id FROM users WHERE id = ?", [
+      user_id,
+    ]);
+    if (user.length === 0) {
+      return res.status(400).json({ message: "Invalid user ID." });
+    }
+    const [result] = await dbPool.query(
+      `
+      INSERT INTO reviews (car_id, user_id, rating, comment, created_at)
+      VALUES (?, ?, ?, ?, NOW())
+      `,
+      [carId, user_id, rating, comment]
+    );
+    if (result.affectedRows > 0) {
+      return res
+        .status(201)
+        .json({ message: "Review submitted successfully!" });
+    } else {
+      return res.status(500).json({ message: "Failed to submit review." });
+    }
+  } catch (error) {
+    console.error("Error submitting review:", error);
+    res.status(500).json({ message: "Error submitting review.", error });
+  }
+};
+
 module.exports = {
   getCars,
   getSingleCar,
@@ -337,5 +367,6 @@ module.exports = {
   updateCar,
   deleteCar,
   filetringCar,
+  postReviews,
   upload,
 };
