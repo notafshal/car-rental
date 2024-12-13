@@ -15,19 +15,21 @@ import FilteredResults from "../pages/FilteredResults";
 const Routers = () => {
   return (
     <>
-      <Routes>
-        <Route path="/" element={<Homepage />} exact />
-        <Route path="/Login" element={<Login />} exact />
-        <Route path="/Register" element={<Register />} exact />
-        <Route path="/collections" element={<Collections />} exact />
-        <Route path="/profile" element={<Profile />} exact />
-        <Route path="/edit-profile" element={<EditProfile />} exact />
-        <Route path="/viewbooking" element={<ViewBookings />} exact />
-        <Route path="/dashboard" element={<Dashboard />} exact />
-        <Route path="/filtered-results" element={<FilteredResults />} />
-        <Route path="/cars/:id" element={<CarPage />} />
-        <Route path="/bookpage/:id" element={<BookPage />} />
-      </Routes>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Homepage />} exact />
+          <Route path="/Login" element={<Login />} exact />
+          <Route path="/Register" element={<Register />} exact />
+          <Route path="/collections" element={<Collections />} exact />
+          <Route path="/profile" element={<Profile />} exact />
+          <Route path="/edit-profile" element={<EditProfile />} exact />
+          <Route path="/viewbooking" element={<ViewBookings />} exact />
+          <Route path="/dashboard" element={<Dashboard />} exact />
+          <Route path="/filtered-results" element={<FilteredResults />} />
+          <Route path="/cars/:id" element={<CarPage />} />
+          <Route path="/bookpage/:id" element={<BookPage />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 };
